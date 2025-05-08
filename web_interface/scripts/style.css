@@ -1,0 +1,8 @@
+.image-container {
+    display: flex;
+    justify-content: center;
+}
+
+#displayed-image {
+    max-width: 500px;
+}
