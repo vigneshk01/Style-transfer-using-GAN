@@ -25,7 +25,7 @@ function handleFormSubmit(event) {
     .then(data => {
         if (data && data.filename) {
             console.log('File uploaded successfully:', data.filename);
-            const displayedImage = document.getElementById('image-preview');
+            const displayedImage = document.getElementById('converted-image');
             if (displayedImage && data.filename) {
                 displayedImage.src = `/static/uploads/${data.filename}`;
             }
