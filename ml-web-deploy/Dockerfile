@@ -11,8 +11,6 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 
 COPY ./scripts /code/scripts
-COPY ./templates /code/templates
-COPY ./uploads /code/uploads
 COPY ./index.html /code/index.html
 COPY ./main.py /code/main.py
 
