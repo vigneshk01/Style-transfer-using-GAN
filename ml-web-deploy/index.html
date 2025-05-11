@@ -8,11 +8,11 @@
     </head>
 
     <body>
-        <header>
+        <!-- <header>
             <a class="nav-link" href="/">Home</a>
             <a class="nav-link" href="/about">About</a>
             <a class="nav-link" href="/info">Info</a>
-        </header>
+        </header> -->
         <h1> Style Transfer using CycleGAN </h1>
             <section>
                 <h2>Introduction</h2>
@@ -20,16 +20,20 @@
             </section>
             <section>
                 <h2>T1 to T2 image convertor tool, please upload the image</h2>
-                <form id="upload-form" method="post" action="/upload-file" enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)">
-                    <input type="file" id="file-input" name="file" required>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <input type="file" id="file-input" name="file" accept="image/*" required>
                     <button type="submit">Upload Image</button>
                 </form>
-                <h3>Generated Image:</h3>
-                <div id="displayed-image" class="image-container" >
-                    <img id="converted-image" src=""/>
+                
+                <div id="response-section">
+                    <div id="response"></div>
+                    <h3>Converted Image:</h3>
+                    <div id="displayed-image" class="image-container" >
+                        <img id="converted-image" src=""/>
+                    </div>
                 </div>
             </section> 
-        <script src="/static/scripts/script.js" defer></script>
+        <script src="static/scripts/script.js" defer></script>
     </body>
     
 </html>

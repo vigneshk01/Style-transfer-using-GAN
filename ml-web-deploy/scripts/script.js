@@ -7,7 +7,7 @@ function handleFormSubmit(event) {
     } else {
         console.error("Element 'file-input' not found or no file selected.");
     }
-    fetch('/upload-file', {
+    fetch('/', {
         method: 'POST',
         body: formData,
     })
@@ -27,7 +27,7 @@ function handleFormSubmit(event) {
             console.log('File uploaded successfully:', data.filename);
             const displayedImage = document.getElementById('converted-image');
             if (displayedImage && data.filename) {
-                displayedImage.src = `/static/uploads/${data.filename}`;
+                displayedImage.src = `/static/static/uploads/converted_${data.filename}`;
             }
         } else if (data && data.error) {
             console.error('Server error:', data.error);

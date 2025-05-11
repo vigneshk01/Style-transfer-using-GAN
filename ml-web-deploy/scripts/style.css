@@ -1,8 +1,28 @@
-.image-container {
+body, h2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#displayed-image{
+    width: 100%;
+    max-width: 500px;
+    margin-top: 20px;
+    position: relative;
     display: flex;
     justify-content: center;
 }
 
-#displayed-image {
-    max-width: 500px;
+#response {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#converted-image {
+    max-width: 100%;
+    height: auto;
+}
+
+#response-section {
+    margin-top: 20px;
 }
