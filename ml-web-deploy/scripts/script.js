@@ -1,50 +1,78 @@
-// This script handles the form submission for file upload and displays the converted image.
-function handleFormSubmit(event) {
-    event.preventDefault();  
-    const formData = new FormData(event.target);  
-    const fileInput = document.getElementById('file-input');
-    if (fileInput && fileInput.files.length > 0) {
-        formData.append('image', fileInput.files[0]);  
-    } else {
-        console.error("Element 'file-input' not found or no file selected.");
+function handleSingleImageUpload(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+    const fileInput = form.querySelector('input[type="file"]');
+    console.log('handleSingleImageUpload')
+
+    if (!fileInput || fileInput.files.length === 0) {
+        console.error("No file selected.");
+        return;
     }
-    fetch('/', {
+
+    fetch('/predict', {
         method: 'POST',
         body: formData,
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                console.error('Server error response:', errorData);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }).catch(() => {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data && data.filename) {
-            console.log('File uploaded successfully:', data.filename);
-            const displayedImage = document.getElementById('converted-image');
-            if (displayedImage && data.filename) {
-                displayedImage.src = `/static/static/uploads/converted_${data.filename}`;
-            }
-        } else if (data && data.error) {
-            console.error('Server error:', data.error);
-        } else {
-            console.error('Unexpected server response:', data);
+    .then(response => response.blob()) // Check if the response is ok
+    .then(blob => blob.text() )
+    .then(text => {
+        const obj = JSON.parse(text)
+        const filename = obj.filename
+        return filename})
+    .then(filename => { 
+        const imageUrl = '/static/static/uploads/' + filename;
+        const displayedImage = document.getElementById('converted-image');
+        if (displayedImage) {
+            displayedImage.src = imageUrl;
         }
     })
     .catch(error => {
-        console.error('Error during file upload:', error);
+        console.error('Error during single image upload:', error);
     });
 }
 
-// Attach the form submit handler
-const uploadForm = document.getElementById('upload-form');
-if (uploadForm) {
-    uploadForm.addEventListener('submit', handleFormSubmit);
-} else {
-    console.error("Element 'upload-form' not found.");
+function handleBatchUpload(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const fileInput = form.querySelector('input[type="file"]');
+
+    // Check if there are more than 10 files selected
+    if (fileInput.files.length > 10) {
+        alert("You can only upload a maximum of 10 images.");
+        return;
+    }
+
+    const formData = new FormData(form);
+
+    fetch('/batch', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Batch conversion completed. Files saved to: " + data.export_path);
+        } else {
+            alert("Batch conversion failed: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error during batch upload:', error);
+    });
 }
+
+// Attach handlers
+document.addEventListener('DOMContentLoaded', () => {
+    const singleForm = document.getElementById('single-upload-form');
+    const batchForm = document.getElementById('batch-upload-form');
+
+    if (singleForm) {
+        singleForm.addEventListener('submit', handleSingleImageUpload);
+    }
+    if (batchForm) {
+        batchForm.addEventListener('submit', handleBatchUpload);
+    }
+});

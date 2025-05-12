@@ -1,5 +1,12 @@
+# This is a FastAPI application that serves a machine learning model for image conversion.
+# It allows users to upload an image, processes it, and returns the converted image.
+# The application uses TensorFlow and Keras for model loading and prediction.
+# The application also includes a simple HTML interface for file upload and displays the result.
+
+# Import necessary libraries
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
@@ -12,29 +19,33 @@ import tensorflow as tf
 import numpy as np
 from io import BytesIO
 import re
+import logging
 
 # Import custom InstanceNormalization
 from InstanceNormalization import InstanceNormalization
 
+log = logging.getLogger('api')
+log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+log.addHandler(ch)
+
+
+# init_loggers()
 app = FastAPI()
 
 # Static file and template configuration
-templates = Jinja2Templates(directory="templates")  # Fixed path to templates folder
-app.mount("/static", StaticFiles(directory="static"), name="static")  # Static folder mount
+templates = Jinja2Templates(directory="./")  # Fixed path to templates folder
+app.mount("/static", StaticFiles(directory="./"), name="static")  # Static folder mount
 
 # Path where uploaded and generated images will be stored
-UPLOAD_DIR = Path("static/uploads")
+UPLOAD_DIR = Path("./static/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-Load pre-trained CycleGAN models for T1 -> T2 and T2 -> T1 conversion using Keras
-generator_g = tf.keras.models.load_model(
-    r"C:\Users\ganes\OneDrive\Style Transfer Using GAN\Generators\test_G.keras",
-    custom_objects={"InstanceNormalization": InstanceNormalization}
-)  # Path to T1 -> T2 generator model
-generator_f = tf.keras.models.load_model(
-    r"C:\Users\ganes\OneDrive\Style Transfer Using GAN\Generators\test_F.keras",
-    custom_objects={"InstanceNormalization": InstanceNormalization}
-)  # Path to T2 -> T1 generator model
+# Load pre-trained CycleGAN models for T1 -> T2 and T2 -> T1 conversion using Keras
+generator_g = tf.keras.models.load_model("./model/test_G.keras", custom_objects={"InstanceNormalization": InstanceNormalization})  # Path to T1 -> T2 generator model
+generator_f = tf.keras.models.load_model("./model/test_F.keras", custom_objects={"InstanceNormalization": InstanceNormalization})  # Path to T2 -> T1 generator model
 
 # Function to cleanup the file name by removing special characters
 def sanitize_filename(filename: str) -> str:
@@ -79,16 +90,19 @@ def transform_image(image: Image.Image, model) -> Image.Image:
 
 @app.get("/")
 async def main(request: Request):
+    log.info('test')
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/upload-file")
+@app.post("/predict")
 async def upload_and_predict(file: UploadFile = File(...), conversion_type: str = "T1_to_T2"):
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=400, detail="Unsupported file type. Please upload a JPEG or PNG image.")
     
     # Save the uploaded file
     sanitized_filename = sanitize_filename(file.filename)
+    
     file_path = UPLOAD_DIR / sanitized_filename
+    log.info(file_path)
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
@@ -105,9 +119,13 @@ async def upload_and_predict(file: UploadFile = File(...), conversion_type: str 
 
     # Save the transformed image
     transformed_file_path = UPLOAD_DIR / f"transformed_{sanitized_filename}"
+    log.info(transformed_file_path)
     transformed_image.save(transformed_file_path)
+    # uploaded_image.save(transformed_file_path)
 
-    return {"filename": transformed_file_path.name, "file_size": os.path.getsize(transformed_file_path)}
+    # return {"filename": transformed_file_path.name, "file_size": os.path.getsize(transformed_file_path)}
+    # return FileResponse(transformed_file_path)
+    return JSONResponse(content={"filename": transformed_file_path.name, "file_size": os.path.getsize(transformed_file_path)})
 
 @app.post("/batch-upload")
 async def batch_upload(images: List[UploadFile], conversion_type: str = "T1_to_T2"):
@@ -118,6 +136,7 @@ async def batch_upload(images: List[UploadFile], conversion_type: str = "T1_to_T
         if file.content_type not in ["image/jpeg", "image/png"]:
             raise HTTPException(status_code=400, detail="Unsupported file type. Please upload a JPEG or PNG image.")
         
+        log.info('test')
         # Save the uploaded file
         sanitized_filename = sanitize_filename(file.filename)
         file_path = UPLOAD_DIR / sanitized_filename
