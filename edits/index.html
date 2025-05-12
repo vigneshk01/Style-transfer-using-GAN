@@ -15,26 +15,26 @@
         </header>
 
         <h1>Style Transfer using CycleGAN</h1>
-        <section>
-            <h2>Image Style Transfer</h2>
-            <form id="single-upload-form" method="POST" action="/predict" enctype="multipart/form-data">
-                <label>Select conversion:</label><br>
-                <input type="radio" id="t1tot2" name="conversion" value="t1tot2" checked>
-                <label for="t1tot2">T1 → T2</label>
-                <input type="radio" id="t2tot1" name="conversion" value="t2tot1">
-                <label for="t2tot1">T2 → T1</label><br><br>
+            <section>
+                <h2>Image Style Transfer</h2>
+                <form id="single-upload-form" method="POST" action="/predict" enctype="multipart/form-data">
+                    <label>Select conversion:</label><br>
+                    <input type="radio" id="t1tot2" name="conversion" value="t1tot2" checked>
+                    <label for="t1tot2">T1 → T2</label>
+                    <input type="radio" id="t2tot1" name="conversion" value="t2tot1">
+                    <label for="t2tot1">T2 → T1</label><br><br>
 
-                <label>Upload an image:</label><br>
-                <input type="file" name="file" accept="image/*" required><br><br>
+                    <label>Upload an image:</label><br>
+                    <input type="file" name="file" accept="image/*" required><br><br>
 
-                <button type="submit">Convert</button>
-            </form>
+                    <button type="submit">Convert</button>
+                </form>
 
-            <h3>Generated Image:</h3>
-            <div id="displayed-image" class="image-container">
-                <img id="converted-image" src="" />
-            </div>
-        </section>
+                <h3>Generated Image:</h3>
+                <div id="displayed-image" class="image-container">
+                    <img id="converted-image" src="" />
+                </div>
+            </section>
 
         <hr>
 
