@@ -1,3 +1,4 @@
+// This script handles the form submission for file upload and displays the converted image.
 function handleFormSubmit(event) {
     event.preventDefault();  
     const formData = new FormData(event.target);  
@@ -40,6 +41,7 @@ function handleFormSubmit(event) {
     });
 }
 
+// Attach the form submit handler
 const uploadForm = document.getElementById('upload-form');
 if (uploadForm) {
     uploadForm.addEventListener('submit', handleFormSubmit);
