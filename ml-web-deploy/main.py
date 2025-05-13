@@ -1,5 +1,12 @@
+# This is a FastAPI application that serves a machine learning model for image conversion.
+# It allows users to upload an image, processes it, and returns the converted image.
+# The application uses TensorFlow and Keras for model loading and prediction.
+# The application also includes a simple HTML interface for file upload and displays the result.
+
+# Import necessary libraries
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
@@ -16,6 +23,7 @@ import imageio
 import numpy as np
 from numpy import asarray
 from skimage.io import imread
+import logging
 
 import matplotlib.pyplot as plt
 from skimage.transform import resize
@@ -23,14 +31,20 @@ from skimage.transform import resize
 # Import custom InstanceNormalization
 from InstanceNormalization import InstanceNormalization
 
+log = logging.getLogger('api')
+log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+log.addHandler(ch)
+
 app = FastAPI()
 
 # Static file and template configuration
-templates = Jinja2Templates(directory="templates")  # Fixed path to templates folder
-app.mount("/static", StaticFiles(directory="static"), name="static")  # Static folder mount
+templates = Jinja2Templates(directory="./")  # Fixed path to templates folder
+app.mount("/static", StaticFiles(directory="./"), name="static")  # Static folder mount
 
 # Path where uploaded and generated images will be stored
-UPLOAD_DIR = Path("static/uploads")
+UPLOAD_DIR = Path("./static/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 ##############################################################################################################################
@@ -114,8 +128,8 @@ Generator_G = unet_generator()
 Generator_F = unet_generator()
 
 # Load pre-trained CycleGAN models for T1 -> T2 and T2 -> T1 conversion using Keras
-Generator_G.load_weights(r"C:\Users\ganes\OneDrive\Style Transfer Using GAN\Generators\test_G.weights.h5")  # Path to T1 -> T2 generator model
-Generator_F.load_weights(r"C:\Users\ganes\OneDrive\Style Transfer Using GAN\Generators\test_F.weights.h5")  # Path to T2 -> T1 generator model
+Generator_G.load_weights("./model/test_G.weights.h5")  # Path to T1 -> T2 generator model
+Generator_F.load_weights("./model/test_F.weights.h5")  # Path to T2 -> T1 generator model
 
 # Function to cleanup the file name by removing special characters
 def sanitize_filename(filename: str) -> str:
@@ -163,7 +177,7 @@ def transform_image(image: Image.Image, model) -> Image.Image:
 
 @app.get("/")
 async def main(request: Request):
-    return templates.TemplateResponse("index2.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/upload-file")
 async def upload_and_predict(file: UploadFile = File(...), conversion_type: str = "T1_to_T2"):

@@ -4,28 +4,27 @@ function handleSingleImageUpload(event) {
     const form = event.target;
     const formData = new FormData(form);
     const fileInput = form.querySelector('input[type="file"]');
-    console.log('handleSingleImageUpload')
 
     if (!fileInput || fileInput.files.length === 0) {
         console.error("No file selected.");
         return;
     }
 
-    fetch('/predict', {
+    fetch('/upload-file', {
         method: 'POST',
         body: formData,
     })
-    .then(response => response.blob()) // Check if the response is ok
-    .then(blob => blob.text() )
-    .then(text => {
-        const obj = JSON.parse(text)
-        const filename = obj.filename
-        return filename})
-    .then(filename => { 
-        const imageUrl = '/static/static/uploads/' + filename;
-        const displayedImage = document.getElementById('converted-image');
-        if (displayedImage) {
-            displayedImage.src = imageUrl;
+    .then(response => response.json())  // Expect JSON response with filename
+    .then(data => {
+        if (data.filename) {
+            const imageUrl = `/static/static/uploads/${data.filename}`;  // Build the image URL
+            const displayedImage = document.getElementById('converted-image');
+            if (displayedImage) {
+                displayedImage.src = imageUrl;  // Set the image source to the URL
+                displayedImage.alt = "Transformed Image";  // Add alt text for accessibility
+            }
+        } else {
+            console.error("No filename returned by the server.");
         }
     })
     .catch(error => {
@@ -47,7 +46,7 @@ function handleBatchUpload(event) {
 
     const formData = new FormData(form);
 
-    fetch('/batch', {
+    fetch('/batch-upload', {
         method: 'POST',
         body: formData,
     })
