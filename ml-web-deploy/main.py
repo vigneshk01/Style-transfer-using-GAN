@@ -124,12 +124,12 @@ def unet_generator():
 
 #########################################################################################################################################################
 
-Generator_G = unet_generator()
-Generator_F = unet_generator()
+# Generator_G = unet_generator()
+# Generator_F = unet_generator()
 
-# Load pre-trained CycleGAN models for T1 -> T2 and T2 -> T1 conversion using Keras
-Generator_G.load_weights("./model/test_G.weights.h5")  # Path to T1 -> T2 generator model
-Generator_F.load_weights("./model/test_F.weights.h5")  # Path to T2 -> T1 generator model
+# # Load pre-trained CycleGAN models for T1 -> T2 and T2 -> T1 conversion using Keras
+# Generator_G.load_weights("./model/test_G.weights.h5")  # Path to T1 -> T2 generator model
+# Generator_F.load_weights("./model/test_F.weights.h5")  # Path to T2 -> T1 generator model
 
 # Function to cleanup the file name by removing special characters
 def sanitize_filename(filename: str) -> str:
@@ -195,11 +195,11 @@ async def upload_and_predict(file: UploadFile = File(...), conversion_type: str 
 
     # Apply the appropriate transformation
     if conversion_type == "T1_to_T2":
-        transformed_image = transform_image(uploaded_image, Generator_G)
-        #transformed_image = uploaded_image
+        # transformed_image = transform_image(uploaded_image, Generator_G)
+        transformed_image = uploaded_image
     elif conversion_type == "T2_to_T1":
-        transformed_image = transform_image(uploaded_image, Generator_F)
-        #transformed_image = uploaded_image
+        # transformed_image = transform_image(uploaded_image, Generator_F)
+        transformed_image = uploaded_image
     else:
         raise HTTPException(status_code=400, detail="Invalid conversion type.")
 
