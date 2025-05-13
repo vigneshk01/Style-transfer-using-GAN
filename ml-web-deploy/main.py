@@ -44,8 +44,8 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 # os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Load pre-trained CycleGAN models for T1 -> T2 and T2 -> T1 conversion using Keras
-generator_g = tf.keras.models.load_model("./model/test_G.keras", custom_objects={"InstanceNormalization": InstanceNormalization})  # Path to T1 -> T2 generator model
-generator_f = tf.keras.models.load_model("./model/test_F.keras", custom_objects={"InstanceNormalization": InstanceNormalization})  # Path to T2 -> T1 generator model
+# generator_g = tf.keras.models.load_model("./model/test_G.keras", custom_objects={"InstanceNormalization": InstanceNormalization})  # Path to T1 -> T2 generator model
+# generator_f = tf.keras.models.load_model("./model/test_F.keras", custom_objects={"InstanceNormalization": InstanceNormalization})  # Path to T2 -> T1 generator model
 
 # Function to cleanup the file name by removing special characters
 def sanitize_filename(filename: str) -> str:
@@ -110,22 +110,22 @@ async def upload_and_predict(file: UploadFile = File(...), conversion_type: str 
     uploaded_image = Image.open(file_path)
 
     # Apply the appropriate transformation
-    if conversion_type == "T1_to_T2":
-        transformed_image = transform_image(uploaded_image, generator_g)
-    elif conversion_type == "T2_to_T1":
-        transformed_image = transform_image(uploaded_image, generator_f)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid conversion type.")
+    # if conversion_type == "T1_to_T2":
+    #     transformed_image = transform_image(uploaded_image, generator_g)
+    # elif conversion_type == "T2_to_T1":
+    #     transformed_image = transform_image(uploaded_image, generator_f)
+    # else:
+    #     raise HTTPException(status_code=400, detail="Invalid conversion type.")
 
     # Save the transformed image
     transformed_file_path = UPLOAD_DIR / f"transformed_{sanitized_filename}"
     log.info(transformed_file_path)
-    transformed_image.save(transformed_file_path)
+    # transformed_image.save(transformed_file_path)
     # uploaded_image.save(transformed_file_path)
 
     # return {"filename": transformed_file_path.name, "file_size": os.path.getsize(transformed_file_path)}
     # return FileResponse(transformed_file_path)
-    return JSONResponse(content={"filename": transformed_file_path.name, "file_size": os.path.getsize(transformed_file_path)})
+    return JSONResponse(content={"filename": transformed_file_path.name})
 
 @app.post("/batch-upload")
 async def batch_upload(images: List[UploadFile], conversion_type: str = "T1_to_T2"):
